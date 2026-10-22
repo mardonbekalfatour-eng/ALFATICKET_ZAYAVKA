@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ALFA TICKET — заявка на билеты</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#efeff4;--sec:#fff;--tx:#000;--hint:#8e8e93;--acc:#164C9A;--accT:rgba(22,76,154,.10);--btn:#164C9A;--btx:#fff;--sep:rgba(128,128,128,.22);--wb:rgba(255,170,0,.16);--wt:#8a5a00;--db:rgba(229,57,53,.13);--dt:#c62828;--ob:rgba(52,199,89,.15);--ot:#1f7a35}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:520px;margin:0 auto;padding-bottom:24px}
+.top{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
+.logo{width:44px;height:44px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px var(--sep);color:var(--btx);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ttl{font-size:16px;font-weight:600}
+.sub{font-size:12.5px;color:var(--hint);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.langs{margin-left:auto;display:flex;gap:2px}
+.lg{border:none;background:transparent;font-size:12px;padding:4px 7px;border-radius:7px;color:var(--hint)}
+.lg.on{background:var(--accT);color:var(--acc);font-weight:600}
+.sec{background:var(--sec);border-radius:12px;padding:10px 12px;margin:0 10px 10px}
+.st{font-size:11.5px;color:var(--hint);margin:0 22px 5px;letter-spacing:.02em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--sep);border-radius:999px;padding:7px 11px;font-size:13px;background:transparent;cursor:pointer}
+.chip.on{background:var(--accT);color:var(--acc);border-color:var(--acc)}
+.rw{display:flex;align-items:center;justify-content:space-between;padding:7px 0;gap:8px;font-size:14px}
+.rw+.rw{border-top:1px solid var(--sep)}
+.cn{display:flex;align-items:center;gap:12px}
+.cn button{width:32px;height:32px;border-radius:50%;border:1px solid var(--sep);background:transparent;font-size:18px;line-height:1;color:var(--acc)}
+.in{border:none;background:transparent;width:100%;font-size:15px;padding:7px 0;outline:none}
+.in::placeholder{color:var(--hint)}
+.er{font-size:12.5px;color:var(--dt);margin:-4px 22px 8px}
+.er:empty{display:none}
+.mb{display:block;width:calc(100% - 20px);margin:8px 10px 0;height:48px;border:none;border-radius:12px;background:var(--btn);color:var(--btx);font-weight:600;font-size:15px}
+.mb:disabled{opacity:.6}
+.sw{width:44px;height:26px;border-radius:13px;background:var(--sep);position:relative;border:none;padding:0;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.sw.on{background:var(--acc)}.sw.on::after{left:21px}.sw.red.on{background:#e53935}
+.seg{display:flex;background:var(--sep);border-radius:10px;padding:3px;margin:0 10px 10px;gap:3px}
+.seg button{flex:1;border:none;border-radius:8px;height:36px;font-size:14px;background:transparent;color:var(--hint)}
+.seg button.on{background:var(--sec);color:var(--tx);font-weight:600}
+.soon{display:block;font-size:10px;font-weight:500;opacity:.8;margin-top:-2px}.seg button.dis{opacity:.55}
+.seg button:has(.soon:not(:empty)){height:40px;line-height:1.15}
+.ppl{margin-top:6px;font-size:12px;opacity:.9}
+.rw.fl .in{font-size:14px}
+.ppm{color:inherit;text-decoration:underline;font-weight:600}
+.ppc{display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-weight:600;cursor:pointer}.ppc input{width:18px;height:18px;margin:1px 0 0;flex-shrink:0;accent-color:#164C9A}
+.nt{display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:10px 12px;margin:0 10px 10px;font-size:13px;line-height:1.45;background:var(--wb);color:var(--wt)}
+.sub2{margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)}
+.lbl{font-size:12.5px;color:var(--hint);margin-bottom:6px}
+.acw{position:relative;flex:1}
+.acl{position:absolute;left:-12px;right:-12px;top:100%;z-index:20;background:var(--sec);border:1px solid var(--sep);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);max-height:240px;overflow:auto;display:none}
+.aci{padding:10px 12px;font-size:14px;border-bottom:1px solid var(--sep);cursor:pointer}
+.aci:last-child{border-bottom:none}
+.df{display:flex;align-items:center;gap:8px;flex:1}
+.df .in{letter-spacing:.03em}
+.cal{position:relative;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--accT);color:var(--acc);flex-shrink:0;font-size:17px}
+.cal input{position:absolute;inset:0;opacity:0;width:100%;height:100%}
+.dh{font-size:12px;color:var(--hint);margin:-2px 0 4px}
+.dh.bad{color:var(--dt)}
+.leg{border:1px solid var(--sep);border-radius:10px;padding:6px 10px;margin-bottom:8px}
+.legh{display:flex;justify-content:space-between;font-size:12px;color:var(--hint)}
+.lnk{border:none;background:transparent;color:var(--acc);font-size:14px;padding:6px 0}
+.more{display:flex;align-items:center;gap:6px;margin:2px 16px 10px;border:none;background:transparent;color:var(--acc);font-size:14px;padding:6px 2px}
+select{border:1px solid var(--sep);background:transparent;border-radius:8px;height:32px;padding:0 8px;font-size:14px}
+.ok{padding:40px 18px 10px;text-align:center}
+.oki{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:34px}
+.okt{font-size:19px;font-weight:600}
+.oks{font-size:14px;color:var(--hint);margin:8px 0 12px;line-height:1.5}
+.qr{width:min(78vw,300px);height:auto;aspect-ratio:1;object-fit:contain;image-rendering:pixelated;border-radius:12px;background:#fff;padding:8px;display:block;margin:6px auto;cursor:zoom-in}
+.qrfull{position:fixed;inset:0;z-index:99;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px}
+.qrfull img{width:min(92vw,92vh);height:auto;image-rendering:pixelated}
+.qrfull div{color:#555;font-size:14px}
+.center{padding:60px 24px;text-align:center;color:var(--hint)}
+.obh{font-size:18px;font-weight:700;margin-bottom:6px}
+.obt{font-size:14px;line-height:1.5;color:var(--hint)}
+.obw{font-size:12.5px;color:var(--hint);text-align:center;margin:10px 24px 0;line-height:1.45}
+.ft{display:flex;justify-content:center;gap:4px;margin:14px 10px 0;flex-wrap:wrap}
+.ft button{border:none;background:transparent;color:var(--acc);font-size:13.5px;padding:8px 10px;border-radius:9px}
+.qa{border-top:1px solid var(--sep)}.qa:first-child{border-top:none}
+.qa summary{list-style:none;padding:11px 0;font-size:14.5px;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+.qa summary::-webkit-details-marker{display:none}.qa summary::after{content:"▾";color:var(--hint)}.qa[open] summary::after{content:"▴"}
+.qa div{font-size:14px;line-height:1.5;color:var(--hint);padding:0 0 12px}
+.pl{font-size:14px;line-height:1.6}.pl a{color:var(--acc)}
+.mb.out{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.mb.red{background:transparent;color:var(--dt);border:1px solid var(--dt)}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="loading" class="center">…</div>
+<div id="fatal" class="center hide"></div>
+<div id="ob" class="hide">
+  <div class="top">
+    <div class="logo"><img src="logo.png" alt="ALFA TICKET" style="width:100%;height:100%;object-fit:contain;border-radius:12px" onerror="this.parentNode.textContent='✈️'"></div>
+    <div style="min-width:0"><div class="ttl">ALFA TICKET</div><div class="sub" data-i="obSub"></div></div>
+    <div class="langs"><button class="lg" data-l="ru">RU</button><button class="lg" data-l="uz">UZ</button><button class="lg" data-l="en">EN</button></div>
+  </div>
+  <div class="sec" style="padding:14px"><div class="obh" data-i="obTitle"></div><div class="obt" data-i="obText"></div></div>
+  <div class="sec"><label class="ppc" style="margin:2px 0;font-weight:400;font-size:14px;line-height:1.45"><input type="checkbox" id="obOk"><span><span data-i="obConsent"></span> <a href="#" id="obPol" class="ppm" data-i="obPolicy"></a></span></label></div>
+  <div class="er" id="eOb"></div>
+  <button class="mb" id="obBtn" data-i="obPhone"></button>
+  <div class="obw" data-i="obWhy"></div>
+  <div class="ft"><button data-pn="faq" data-i="fFaq"></button><button data-pn="mgr" data-i="fMgr"></button></div>
+</div>
+<div id="pn" class="hide">
+  <div class="top"><div class="ttl" id="pnT"></div></div>
+  <div id="pnB"></div>
+</div>
+<div id="form" class="hide">
+  <div class="top">
+    <div class="logo" id="logo"><img src="logo.png" alt="ALFA TICKET" style="width:100%;height:100%;object-fit:contain;border-radius:12px" onerror="this.parentNode.textContent='✈️'"></div>
+    <div style="min-width:0">
+      <div class="ttl"><span data-i="hTitle"></span> · <span id="company">ALFA TICKET</span></div>
+      <div class="sub"><span class="dot" id="dot"></span><span id="hs"></span></div>
+    </div>
+    <div class="langs"><button class="lg" data-l="ru">RU</button><button class="lg" data-l="uz">UZ</button><button class="lg" data-l="en">EN</button></div>
+  </div>
+
+  <div class="seg" id="mode"><button class="on" data-m="pl">✈️ <span data-i="plane"></span></button><button data-m="tr">🚆 <span data-i="train"></span><small id="trSoon" class="soon" data-i="soon"></small></button></div>
+  <div class="nt hide" id="trSoonNote"><span>🚆</span><div data-i="soonNote"></div></div>
+  <div class="nt" data-only="tr"><span>⏱️</span><div data-i="trainNote"></div></div>
+
+  <div class="sec" id="urgBox" style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:20px">⏰</span>
+    <div style="flex:1"><div style="font-size:14px;font-weight:600" data-i="urg"></div><div style="font-size:12px;color:var(--hint)" data-i="urgSub"></div></div>
+    <button class="sw red" id="urg" aria-label="urgent"></button>
+  </div>
+
+  <div class="st" data-i="sRoute"></div>
+  <div class="sec">
+    <div class="chips" id="trip" style="margin-bottom:6px"><button class="chip on" data-v="rt" data-i="rt"></button><button class="chip" data-v="ow" data-i="ow"></button><button class="chip" data-v="mc" data-only="pl" data-i="mc"></button></div>
+    <div id="simple">
+      <div class="rw"><span style="color:var(--hint)">●</span><div class="acw"><input class="in ac" id="from" data-p="pFrom" autocomplete="off"></div></div>
+      <div class="rw"><span style="color:var(--acc)">📍</span><div class="acw"><input class="in ac" id="to" data-p="pTo" autocomplete="off"></div></div>
+      <div class="rw"><span style="color:var(--hint);min-width:70px" data-i="dTo"></span><div class="df" id="df1"></div></div>
+      <div class="dh" id="dh1"></div>
+      <div class="rw fl"><span style="color:var(--hint);min-width:70px;font-size:13px">🕘</span><input class="in" id="fl1" data-p="pFl" maxlength="40" autocomplete="off"></div>
+      <div id="d2w"><div class="rw" style="border-top:1px solid var(--sep)"><span style="color:var(--hint);min-width:70px" data-i="dBack"></span><div class="df" id="df2"></div></div><div class="dh" id="dh2"></div><div class="rw fl"><span style="color:var(--hint);min-width:70px;font-size:13px">🕘</span><input class="in" id="fl2" data-p="pFl" maxlength="40" autocomplete="off"></div></div>
+    </div>
+    <div id="multi" class="hide"><div id="legs"></div><button class="lnk" id="addLeg" data-i="addLeg"></button></div>
+    <div class="rw"><span style="font-size:13px" data-i="flex"></span><button class="sw" id="flx" aria-label="flex"></button></div>
+  </div>
+  <div class="er" id="e1"></div>
+
+  <div class="nt" data-only="pl"><span>🪪</span><div><b data-i="ppT"></b><br><span data-i="ppB"></span> <span id="pp"></span>
+    <label class="ppc"><input type="checkbox" id="ppOk"><span><span data-i="ppC"></span> <a href="#" id="ppMore" class="ppm" data-i="ppM"></a></span></label>
+    <div class="ppl hide" id="ppL" data-i="ppL"></div></div></div>
+  <div class="er" id="e7" data-only="pl"></div>
+
+  <div class="st" data-i="sPax"></div>
+  <div class="sec">
+    <div class="rw"><span><span data-i="adults"></span> <span style="color:var(--hint);font-size:12px">12+</span></span><div class="cn"><button data-c="ad" data-d="-1">−</button><b id="ad">1</b><button data-c="ad" data-d="1">+</button></div></div>
+    <div class="rw"><span><span data-i="kids"></span> <span style="color:var(--hint);font-size:12px" data-i="u12"></span></span><div class="cn"><button data-c="ch" data-d="-1">−</button><b id="ch">0</b><button data-c="ch" data-d="1">+</button></div></div>
+    <div id="ages"></div>
+  </div>
+  <div class="er" id="e2"></div>
+
+  <div data-only="pl"><div class="st" data-i="sFare"></div>
+    <div class="sec"><div class="chips" id="fare"><button class="chip" data-v="bag" data-i="bag"></button><button class="chip" data-v="nobag" data-i="nobag"></button></div></div>
+    <div class="er" id="e3"></div></div>
+
+  <div class="st" data-i="sCls"></div>
+  <div class="sec">
+    <div class="chips" id="cls" data-only="pl"><button class="chip" data-v="eco" data-i="eco"></button><button class="chip" data-v="bus" data-i="bus"></button><button class="chip" data-v="first" data-i="first"></button></div>
+    <div class="chips" id="tcls" data-only="tr"><button class="chip" data-v="eco" data-i="eco"></button><button class="chip" data-v="bus" data-i="bus"></button><button class="chip" data-v="vip">VIP</button></div>
+  </div>
+  <div class="er" id="e4"></div>
+
+  <div class="st" data-i="sPref"></div>
+  <div class="sec">
+    <div data-only="pl"><div class="chips" id="dir"><button class="chip" data-v="direct" data-i="direct"></button><button class="chip" data-v="via" data-i="via"></button></div>
+      <div id="layW" class="sub2 hide"><div class="lbl" data-i="lay"></div><div class="chips" id="lay"><button class="chip" data-v="3" data-i="l3"></button><button class="chip" data-v="6" data-i="l6"></button><button class="chip on" data-v="any" data-i="lAny"></button></div></div>
+      <div class="sub2"></div></div>
+    <div class="lbl" data-i="time"></div><div class="chips" id="tm"><button class="chip" data-v="m" data-i="m"></button><button class="chip" data-v="d" data-i="d"></button><button class="chip" data-v="e" data-i="e"></button></div>
+  </div>
+
+  <div data-only="tr"><div class="st" data-i="sTrain"></div>
+    <div class="sec"><div class="chips" id="tt"><button class="chip" data-v="afr" data-i="afr"></button><button class="chip" data-v="sharq" data-i="sharq"></button><button class="chip on" data-v="any" data-i="tAny"></button></div>
+      <div class="rw sub2"><span style="font-size:13px" data-i="fallback"></span><button class="sw on" id="fb" aria-label="fallback"></button></div></div></div>
+
+  <div class="st" data-i="sPay"></div>
+  <div class="sec"><div class="chips" id="pay"><button class="chip" data-v="cash">💵 <span data-i="cash"></span></button><button class="chip" data-v="qr">📱 <span data-i="qr"></span></button></div>
+    <div id="payH" class="hide" style="font-size:12.5px;color:var(--hint);margin-top:8px"></div></div>
+  <div class="er" id="e5"></div>
+
+  <button class="more" id="more">⚙️ <span id="moreT"></span> <span id="moreI">▾</span></button>
+  <div id="moreBox" class="hide">
+    <div data-only="pl"><div class="st" data-i="sAdd"></div>
+      <div class="sec"><div class="chips" id="add"><button class="chip" data-v="seat">💺 <span data-i="seat"></span></button><button class="chip" data-v="xbag">🧳 <span data-i="xbag"></span></button><button class="chip" data-v="fast">⚡ <span data-i="fast"></span></button><button class="chip" data-v="ins">🛡️ <span data-i="ins"></span></button><button class="chip" data-v="upg">⬆️ <span data-i="upg"></span></button></div>
+        <div id="seatW" class="sub2 hide"><div class="lbl" data-i="seatQ"></div><div class="chips" id="seatP"><button class="chip" data-v="w" data-i="sW"></button><button class="chip" data-v="a" data-i="sA"></button><button class="chip" data-v="t" data-i="sT"></button></div></div>
+      </div></div>
+    <div class="st" data-i="sTour"></div>
+    <div class="sec"><div class="chips" id="ex"><button class="chip" data-v="hotel">🏨 <span data-i="hotel"></span></button><button class="chip" data-v="tr">🚗 <span data-i="tr"></span></button><button class="chip" data-v="visa" data-only="pl">🛂 <span data-i="visa"></span></button></div></div>
+    <div class="sec"><input class="in" id="cm" data-p="pCm" maxlength="500"></div>
+  </div>
+  <div class="er" id="e6" style="margin-top:6px"></div>
+  <button class="mb" id="send" data-i="send"></button>
+  <div class="ft"><button data-pn="faq" data-i="fFaq"></button><button data-pn="mgr" data-i="fMgr"></button><button data-pn="priv" data-i="fPriv"></button></div>
+</div>
+
+<div id="ok" class="ok hide">
+  <div class="oki" id="okI"></div>
+  <div class="okt" id="okT"></div>
+  <div class="oks" id="okS"></div>
+  <div class="oks" id="okP" style="margin-top:0"></div>
+  <button class="mb" id="again" style="margin:16px 0 0;width:100%" data-i="close"></button>
+  <button class="mb" id="again2" style="margin:10px 0 0;width:100%;background:transparent;color:var(--acc);border:1px solid var(--acc)" data-i="again"></button>
+</div>
+</div>
+
+<script>
+// === НАСТРОЙКА: ссылка на веб-приложение Apps Script таблицы «ALFA Заявки физлица» ===
+const API = 'https://script.google.com/macros/s/AKfycbzpAoItAvYMVZmgXpJfSOSuKcERbnykpRFjndaxuex8HxExAyhxDsgvnausSpK8L12pfg/exec';
+// =====================================================================
+
+const HOL = ['2026-12-08','2026-12-31','2027-01-01','2027-03-08','2027-03-10','2027-03-21','2027-05-09','2027-05-17','2027-09-01','2027-10-01','2027-12-08'];
+
+const T = {
+ru:{obSub:'Авиабилеты и поезда · Ташкент',obTitle:'Добро пожаловать! 👋',obText:'Подберём авиабилеты по любым направлениям и билеты на поезд по Узбекистану. Заявка занимает 1–2 минуты, менеджер пришлёт варианты в чат с ботом. Это бесплатно и ни к чему не обязывает.',obConsent:'Я согласен(на) на обработку моих персональных данных (имя и номер телефона) в соответствии с',obPolicy:'Политикой конфиденциальности',obPhone:'📱 Поделиться номером и продолжить',obWhy:'Номер нужен только менеджеру, чтобы связаться с вами по заявке. Без рассылок и спама.',obNeedC:'Отметьте согласие, чтобы продолжить',obDenied:'Без номера мы не сможем связаться с вами. Нажмите кнопку ещё раз и выберите «Поделиться».',obOld:'Обновите Telegram, чтобы поделиться номером, или позвоните нам: +998 93 392 99 99',obSaving:'Сохраняем…',fFaq:'❓ Вопросы',fMgr:'📞 Связаться',fPriv:'🔒 Мои данные',faqT:'Частые вопросы',mgrT:'Связаться с нами',privT:'Мои данные',mgrTxt:'Напишите вопрос в чат с ботом — менеджер ответит там же. Если срочно, позвоните.',hours:'Пн–Пт 10:00–18:00, Сб 10:00–16:00 · на связи 24/7',bCall:'📞 Позвонить',bMapO:'📍 Офис на карте',bChat:'💬 Написать в чат',privTxt:'Мы храним ваше имя, номер телефона и данные заявок, только чтобы обслуживать ваши заявки. Срок хранения — 3 года с последней заявки.',bPol:'📄 Политика конфиденциальности',bWd:'❌ Отозвать согласие',wdQ:'Отозвать согласие? Мы удалим ваши данные в течение 10 рабочих дней, а оставить заявку можно будет только после нового согласия.',wdOk:'Согласие отозвано. Данные будут удалены в течение 10 рабочих дней.',close:'Вернуться в чат',eConsent:'Подтвердите согласие и номер телефона, чтобы отправить заявку.',pFl:'Время или номер рейса/поезда — если знаете',ppL:'ALFA TICKET оформляет билеты по данным, которые предоставляет заказчик, и не проверяет срок действия паспортов. Если паспорт действует меньше требуемого срока или не соответствует требованиям страны въезда, ответственность за отказ в посадке или во въезде, а также за связанные расходы несёт заказчик.',ppC:'Подтверждаю, что паспорта всех пассажиров действительны не менее 6 месяцев после окончания поездки, и принимаю',ppM:'условия ответственности',e7:'Подтвердите срок действия паспортов',soon:'скоро',soonNote:'Ж/д билеты скоро появятся, мы сообщим в группе. Пока можно оформить авиабилет.',demoT:'Это демо-версия формы',demoB:'Заполните её как настоящую заявку. Её получит менеджер ALFA TICKET и свяжется с вами, чтобы рассказать, как подключить такую форму у вас.',demoP:'Ваша компания и телефон',eDemo:'Укажите компанию и телефон, чтобы мы могли с вами связаться',okDemo:'Спасибо! Менеджер ALFA TICKET свяжется с вами и расскажет, как подключить такую форму в рабочей группе вашей компании.',qrHow:'Сканируйте в приложении банка (Click, Payme, Uzum и др.), а не обычной камерой. Если оплачиваете с этого же телефона — сохраните QR и выберите «Сканировать из галереи». Нажмите на код, чтобы увеличить.',qrSave:'Сохранить QR-код',qrClose:'Нажмите, чтобы закрыть',hTitle:'Новая поездка',plane:'Самолёт',train:'Поезд',trainNote:'Билеты на «Афросиаб» раскупают очень быстро. Оставляйте заявку как можно раньше: если мест не будет, предложим другой поезд или авиарейс.',urg:'Срочно — выезд в ближайшие 24 часа',urgSub:'Менеджер сразу свяжется с вами',sRoute:'Маршрут',rt:'Туда-обратно',ow:'В одну сторону',mc:'Сложный маршрут',leg:'Перелёт',addLeg:'+ Добавить перелёт',pFrom:'Откуда',pTo:'Куда',dTo:'Туда',dBack:'Обратно',dPh:'ДД.ММ.ГГГГ',flex:'Даты гибкие ±3 дня',ppT:'Проверьте паспорта',ppB:'Паспорт каждого пассажира должен действовать минимум 6 месяцев после поездки.',ppD:'Для этой поездки — до',ppE:'или дольше.',sPax:'Пассажиры',adults:'Взрослые',kids:'Дети',u12:'до 12',age:'Возраст ребёнка',pick:'выбрать',y0:'до 1 года',y:n=>n+(n===1?' год':n<5?' года':' лет'),sFare:'Тариф · можно оба',bag:'Багаж / возвратный',nobag:'Без багажа / невозвратный',sCls:'Класс · можно несколько',eco:'Эконом',bus:'Бизнес',first:'Первый класс',sAdd:'Допуслуги',seat:'Выбор места',xbag:'Доп. багаж',fast:'Fast Track / бизнес-зал',ins:'Страховка',upg:'Повышение класса',seatQ:'Какое место?',sW:'У окна',sA:'У прохода',sT:'Рядом вместе',sTrain:'Поезд',afr:'Афросиаб',sharq:'Шарк',tAny:'Любой',fallback:'Нет мест — предложить другой поезд или самолёт',sPay:'Способ оплаты',bank:'Перечисление',cash:'Наличные',qr:'QR-код',bankH:'Счёт или договор подготовит наша бухгалтерия',cashH:'Оплата наличными в офисе ALFA TICKET',qrH:'Менеджер пришлёт сумму и QR-код в чат — оплатите через приложение банка',more:'Допуслуги и комментарий',less:'Свернуть',sPref:'Пожелания',direct:'Прямой',via:'С пересадкой',lay:'Пересадка не дольше',l3:'3 часов',l6:'6 часов',lAny:'Не важно',time:'Время отправления',m:'Утро',d:'День',e:'Вечер',sTour:'Услуги ALFA TOUR',hotel:'Отель',tr:'Трансфер',visa:'Виза',pCm:'Комментарий',send:'Отправить заявку',sending:'Отправляем…',e1:'Укажите направление и даты',e1m:'Заполните все перелёты: откуда, куда и дату',eDate:'Проверьте даты',e2:'Выберите возраст каждого ребёнка',e3:'Выберите хотя бы один тариф',e4:'Выберите хотя бы один класс',e5:'Выберите способ оплаты',eNet:'Не удалось отправить. Проверьте интернет и попробуйте ещё раз.',eAuth:'Откройте приложение через бота @AlfaTicket_bot — кнопка «✈️ ALFA TICKET» внизу чата.',eClient:'Ссылка устарела. Попросите менеджера ALFA обновить кнопку в группе.',bad:'Такой даты нет',past:'Эта дата уже прошла',order:'Раньше даты вылета',wd:['вс','пн','вт','ср','чт','пт','сб'],mo:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],hOpen:'Сейчас на связи · ответим за 15 минут',hEve:'На связи 24/7 · ответим в течение часа',hNight:'На связи 24/7 · ответим в ближайшее время',okT:n=>'Заявка №'+n+' отправлена',okOpen:'Менеджер пришлёт варианты в чат с ботом в течение 15 минут',okEve:'Заявка уже у нас — ответим в течение часа, варианты придут в чат с ботом. Если вылет сегодня, включите «Срочно», и мы сразу позвоним.',okNight:'Заявка уже у нас — ответим в ближайшее время, варианты придут в чат с ботом. Если вылет сегодня, включите «Срочно», и мы сразу позвоним.',okU:'Дежурный менеджер позвонит в течение 15 минут',okUN:'Срочная заявка принята — мы уже получили сигнал и свяжемся с вами как можно быстрее',okBank:'Оплата перечислением: счёт пришлём в группу вместе с билетом.',okCash:'Оплата наличными в офисе: менеджер пришлёт сумму и адрес в чат.',okQr:'Оплата по QR-коду: менеджер пришлёт сумму и QR-код в чат. Оплачивайте только после подтверждения суммы.',qrMiss:'QR-код пришлёт менеджер в группу.',qrWarn:'Оплачивайте только после того, как менеджер подтвердит сумму. После оплаты отправьте скрин или квитанцию ответом на карточку заявки в группе.',again:'Ещё одна заявка'},
+uz:{obSub:'Aviachiptalar va poyezdlar · Toshkent',obTitle:'Xush kelibsiz! 👋',obText:'Istalgan yo‘nalishga aviachiptalar va O‘zbekiston bo‘ylab poyezd chiptalarini topib beramiz. Ariza 1–2 daqiqa oladi, menejer variantlarni bot chatiga yuboradi. Bu bepul va hech narsaga majbur qilmaydi.',obConsent:'Shaxsga doir ma’lumotlarim (ism va telefon raqami)ga ishlov berishga roziman. Batafsil:',obPolicy:'Maxfiylik siyosati',obPhone:'📱 Raqamni yuborish va davom etish',obWhy:'Raqam faqat menejer ariza bo‘yicha siz bilan bog‘lanishi uchun kerak. Reklama va spam bo‘lmaydi.',obNeedC:'Davom etish uchun rozilikni belgilang',obDenied:'Raqamsiz siz bilan bog‘lana olmaymiz. Tugmani yana bosing va «Yuborish» ni tanlang.',obOld:'Raqam yuborish uchun Telegramni yangilang yoki bizga qo‘ng‘iroq qiling: +998 93 392 99 99',obSaving:'Saqlanmoqda…',fFaq:'❓ Savollar',fMgr:'📞 Aloqa',fPriv:'🔒 Ma’lumotlarim',faqT:'Ko‘p beriladigan savollar',mgrT:'Biz bilan bog‘lanish',privT:'Ma’lumotlarim',mgrTxt:'Savolingizni bot chatiga yozing — menejer o‘sha yerda javob beradi. Shoshilinch bo‘lsa, qo‘ng‘iroq qiling.',hours:'Du–Ju 10:00–18:00, Sh 10:00–16:00 · 24/7 aloqadamiz',bCall:'📞 Qo‘ng‘iroq qilish',bMapO:'📍 Ofis xaritada',bChat:'💬 Chatga yozish',privTxt:'Ismingiz, telefon raqamingiz va ariza ma’lumotlarini faqat arizalaringizga xizmat ko‘rsatish uchun saqlaymiz. Saqlash muddati — oxirgi arizadan 3 yil.',bPol:'📄 Maxfiylik siyosati',bWd:'❌ Rozilikni qaytarib olish',wdQ:'Rozilikni qaytarib olasizmi? Ma’lumotlaringizni 10 ish kuni ichida o‘chiramiz, ariza qoldirish uchun esa yangi rozilik kerak bo‘ladi.',wdOk:'Rozilik qaytarib olindi. Ma’lumotlar 10 ish kuni ichida o‘chiriladi.',close:'Chatga qaytish',eConsent:'Ariza yuborish uchun rozilik va telefon raqamini tasdiqlang.',pFl:'Reys/poyezd vaqti yoki raqami — bilsangiz',ppL:'ALFA TICKET chiptalarni buyurtmachi taqdim etgan ma’lumotlar asosida rasmiylashtiradi va pasportlarning amal qilish muddatini tekshirmaydi. Agar pasport talab qilingan muddatdan kam amal qilsa yoki kirish davlati talablariga mos kelmasa, reysga yoki mamlakatga kiritilmaslik hamda bunga bog‘liq xarajatlar uchun javobgarlik buyurtmachi zimmasida bo‘ladi.',ppC:'Barcha yo‘lovchilarning pasportlari safar tugaganidan keyin kamida 6 oy amal qilishini tasdiqlayman va',ppM:'javobgarlik shartlarini qabul qilaman',e7:'Pasportlar amal qilish muddatini tasdiqlang',soon:'tez orada',soonNote:'Temir yo‘l chiptalari tez orada paydo bo‘ladi, guruhda xabar beramiz. Hozircha aviachipta rasmiylashtirish mumkin.',demoT:'Bu formaning demo-versiyasi',demoB:'Uni haqiqiy ariza kabi toʻldiring. Arizani ALFA TICKET menejeri oladi va bunday formani sizda qanday ulash haqida aytib beradi.',demoP:'Kompaniyangiz va telefon raqamingiz',eDemo:'Siz bilan bogʻlanishimiz uchun kompaniya va telefonni kiriting',okDemo:'Rahmat! ALFA TICKET menejeri siz bilan bogʻlanadi va bunday formani kompaniyangiz ish guruhida qanday ulashni aytib beradi.',qrHow:'Oddiy kamera emas, bank ilovasida skanerlang (Click, Payme, Uzum va b.). Shu telefondan toʻlasangiz — QRni saqlab, «Galereyadan skanerlash»ni tanlang. Kattalashtirish uchun kodni bosing.',qrSave:'QR-kodni saqlash',qrClose:'Yopish uchun bosing',hTitle:'Yangi safar',plane:'Samolyot',train:'Poyezd',trainNote:'«Afrosiyob» chiptalari juda tez sotilib ketadi. Arizani imkon qadar ertaroq qoldiring: joy boʻlmasa, boshqa poyezd yoki reys taklif qilamiz.',urg:'Shoshilinch — 24 soat ichida joʻnash',urgSub:'Menejer darhol siz bilan bogʻlanadi',sRoute:'Yoʻnalish',rt:'Borish-qaytish',ow:'Bir tomonga',mc:'Murakkab yoʻnalish',leg:'Parvoz',addLeg:'+ Parvoz qoʻshish',pFrom:'Qayerdan',pTo:'Qayerga',dTo:'Borish',dBack:'Qaytish',dPh:'KK.OO.YYYY',flex:'Sanalar moslashuvchan ±3 kun',ppT:'Pasportlarni tekshiring',ppB:'Har bir yoʻlovchining pasporti safardan keyin kamida 6 oy amal qilishi kerak.',ppD:'Bu safar uchun —',ppE:'gacha yoki undan uzoqroq.',sPax:'Yoʻlovchilar',adults:'Kattalar',kids:'Bolalar',u12:'12 yoshgacha',age:'Bola yoshi',pick:'tanlang',y0:'1 yoshgacha',y:n=>n+' yosh',sFare:'Tarif · ikkalasi ham mumkin',bag:'Bagaj / qaytariladigan',nobag:'Bagajsiz / qaytarilmaydigan',sCls:'Klass · bir nechtasi mumkin',eco:'Ekonom',bus:'Biznes',first:'Birinchi klass',sAdd:'Qoʻshimcha xizmatlar',seat:'Joy tanlash',xbag:'Qoʻshimcha bagaj',fast:'Fast Track / biznes-zal',ins:'Sugʻurta',upg:'Klassni oshirish',seatQ:'Qanday joy?',sW:'Deraza yonida',sA:'Yoʻlak yonida',sT:'Yonma-yon',sTrain:'Poyezd',afr:'Afrosiyob',sharq:'Sharq',tAny:'Farqi yoʻq',fallback:'Joy boʻlmasa — boshqa poyezd yoki samolyot taklif qilinsin',sPay:'Toʻlov usuli',bank:'Pul oʻtkazish',cash:'Naqd pul',qr:'QR-kod',bankH:'Hisob yoki shartnomani buxgalteriyamiz tayyorlaydi',cashH:'ALFA TICKET ofisida naqd to‘lov',qrH:'Menejer summa va QR-kodni chatga yuboradi — bank ilovasi orqali to‘lang',more:'Qoʻshimcha xizmatlar va izoh',less:'Yigʻish',sPref:'Istaklar',direct:'Toʻgʻridan-toʻgʻri',via:'Qoʻnib oʻtish bilan',lay:'Kutish vaqti koʻpi bilan',l3:'3 soat',l6:'6 soat',lAny:'Farqi yoʻq',time:'Joʻnash vaqti',m:'Ertalab',d:'Kunduzi',e:'Kechqurun',sTour:'ALFA TOUR xizmatlari',hotel:'Mehmonxona',tr:'Transfer',visa:'Viza',pCm:'Izoh',send:'Arizani yuborish',sending:'Yuborilmoqda…',e1:'Yoʻnalish va sanalarni kiriting',e1m:'Barcha parvozlarni toʻldiring: qayerdan, qayerga va sana',eDate:'Sanalarni tekshiring',e2:'Har bir bolaning yoshini tanlang',e3:'Kamida bitta tarifni tanlang',e4:'Kamida bitta klassni tanlang',e5:'Toʻlov usulini tanlang',eNet:'Yuborib boʻlmadi. Internetni tekshirib, qayta urinib koʻring.',eAuth:'Ilovani @AlfaTicket_bot orqali oching — chat pastidagi «✈️ ALFA TICKET» tugmasi.',eClient:'Havola eskirgan. ALFA menejeridan guruhdagi tugmani yangilashni soʻrang.',bad:'Bunday sana yoʻq',past:'Bu sana oʻtib ketgan',order:'Joʻnash sanasidan oldin',wd:['yak','dush','sesh','chor','pay','jum','shan'],mo:['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'],hOpen:'Hozir aloqadamiz · 15 daqiqada javob beramiz',hEve:'24/7 aloqadamiz · bir soat ichida javob beramiz',hNight:'24/7 aloqadamiz · tez orada javob beramiz',okT:n=>'№'+n+' ariza yuborildi',okOpen:'Menejer 15 daqiqa ichida bot chatiga variantlar yuboradi',okEve:'Ariza bizda — bir soat ichida javob beramiz, variantlar bot chatiga keladi. Agar bugun uchsangiz, «Shoshilinch»ni yoqing, darhol qo‘ng‘iroq qilamiz.',okNight:'Ariza bizda — imkon qadar tez javob beramiz, variantlar bot chatiga keladi. Agar bugun uchsangiz, «Shoshilinch»ni yoqing, darhol qo‘ng‘iroq qilamiz.',okU:'Navbatchi menejer 15 daqiqa ichida qoʻngʻiroq qiladi',okUN:'Shoshilinch ariza qabul qilindi — signal bizga yetdi, imkon qadar tez bogʻlanamiz',okBank:'Pul oʻtkazish: toʻlov uchun hisobni chipta bilan birga guruhga yuboramiz.',okCash:'Ofisda naqd to‘lov: menejer summa va manzilni chatga yuboradi.',okQr:'QR-kod orqali to‘lov: menejer summa va QR-kodni chatga yuboradi. Faqat summa tasdiqlangandan keyin to‘lang.',qrMiss:'QR-kodni menejer guruhga yuboradi.',qrWarn:'Faqat menejer summani tasdiqlagandan keyin toʻlang. Toʻlovdan soʻng skrinshot yoki kvitansiyani guruhdagi ariza kartochkasiga javob qilib yuboring.',again:'Yana bir ariza'},
+en:{obSub:'Flights & trains · Tashkent',obTitle:'Welcome! 👋',obText:'We find flights to any destination and train tickets across Uzbekistan. A request takes 1–2 minutes, and a manager will send options to the bot chat. It’s free and non-binding.',obConsent:'I consent to the processing of my personal data (name and phone number) under the',obPolicy:'Privacy Policy',obPhone:'📱 Share phone number and continue',obWhy:'Only a manager uses your number, to contact you about your request. No ads, no spam.',obNeedC:'Please tick the consent box to continue',obDenied:'Without a number we can’t contact you. Tap the button again and choose “Share”.',obOld:'Please update Telegram to share your number, or call us: +998 93 392 99 99',obSaving:'Saving…',fFaq:'❓ FAQ',fMgr:'📞 Contact',fPriv:'🔒 My data',faqT:'FAQ',mgrT:'Contact us',privT:'My data',mgrTxt:'Write your question in the bot chat — a manager will reply there. If it’s urgent, call us.',hours:'Mon–Fri 10:00–18:00, Sat 10:00–16:00 · available 24/7',bCall:'📞 Call',bMapO:'📍 Office on the map',bChat:'💬 Write in chat',privTxt:'We store your name, phone number and request details only to handle your requests. They are kept for 3 years after your last request.',bPol:'📄 Privacy Policy',bWd:'❌ Withdraw consent',wdQ:'Withdraw consent? We’ll delete your data within 10 working days, and you’ll need to consent again to leave a request.',wdOk:'Consent withdrawn. Your data will be deleted within 10 working days.',close:'Back to chat',eConsent:'Please confirm consent and your phone number to send the request.',pFl:'Flight/train time or number — if known',ppL:'ALFA TICKET issues tickets based on the data provided by the customer and does not check passport validity. If a passport is valid for less than the required period or does not meet the entry requirements of the destination country, the customer is responsible for any denied boarding or entry and related costs.',ppC:'I confirm that all passengers’ passports are valid for at least 6 months after the end of the trip and accept the',ppM:'liability terms',e7:'Please confirm passport validity',soon:'soon',soonNote:'Train tickets are coming soon, we’ll announce it in the group. For now you can book a flight.',demoT:'This is a demo of the form',demoB:'Fill it in like a real request. An ALFA TICKET manager will receive it and contact you to explain how to set this form up for your team.',demoP:'Your company and phone',eDemo:'Enter your company and phone so we can contact you',okDemo:'Thank you! An ALFA TICKET manager will contact you and explain how to set up this form in your company’s work group.',qrHow:'Scan it in your banking app (Click, Payme, Uzum, etc.), not the regular camera. Paying from this same phone? Save the QR and choose “Scan from gallery”. Tap the code to enlarge.',qrSave:'Save QR code',qrClose:'Tap to close',hTitle:'New trip',plane:'Flight',train:'Train',trainNote:'Afrosiyob tickets sell out very fast. Send your request as early as possible: if it’s sold out, we’ll offer another train or a flight.',urg:'Urgent — departure within 24 hours',urgSub:'Your manager will contact you right away',sRoute:'Route',rt:'Round trip',ow:'One way',mc:'Multi-city',leg:'Flight',addLeg:'+ Add flight',pFrom:'From',pTo:'To',dTo:'Depart',dBack:'Return',dPh:'DD.MM.YYYY',flex:'Flexible dates ±3 days',ppT:'Check your passports',ppB:'Each passport must be valid for at least 6 months after the trip.',ppD:'For this trip — until',ppE:'or later.',sPax:'Passengers',adults:'Adults',kids:'Children',u12:'under 12',age:'Child age',pick:'select',y0:'under 1',y:n=>n+(n===1?' year':' years'),sFare:'Fare · both allowed',bag:'Baggage / refundable',nobag:'No baggage / non-refundable',sCls:'Class · several allowed',eco:'Economy',bus:'Business',first:'First class',sAdd:'Add-ons',seat:'Seat selection',xbag:'Extra baggage',fast:'Fast Track / lounge',ins:'Insurance',upg:'Upgrade',seatQ:'Which seat?',sW:'Window',sA:'Aisle',sT:'Together',sTrain:'Train',afr:'Afrosiyob',sharq:'Sharq',tAny:'Any',fallback:'If sold out — offer another train or a flight',sPay:'Payment',bank:'Bank transfer',cash:'Cash',qr:'QR code',bankH:'Our accounting team will prepare the invoice or contract',cashH:'Cash payment at the ALFA TICKET office',qrH:'A manager will send the amount and QR code to the chat — pay in your banking app',more:'Add-ons & comments',less:'Collapse',sPref:'Preferences',direct:'Direct',via:'With a layover',lay:'Layover no longer than',l3:'3 hours',l6:'6 hours',lAny:'Any',time:'Departure time',m:'Morning',d:'Afternoon',e:'Evening',sTour:'ALFA TOUR services',hotel:'Hotel',tr:'Transfer',visa:'Visa',pCm:'Comments',send:'Send request',sending:'Sending…',e1:'Enter the route and dates',e1m:'Fill in every flight: from, to and date',eDate:'Check the dates',e2:'Select each child’s age',e3:'Select at least one fare',e4:'Select at least one class',e5:'Choose a payment method',eNet:'Couldn’t send. Check your connection and try again.',eAuth:'Open the app via @AlfaTicket_bot — the “✈️ ALFA TICKET” button at the bottom of the chat.',eClient:'This link is outdated. Ask your ALFA manager to refresh the button in the group.',bad:'Invalid date',past:'This date has passed',order:'Before departure date',wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],mo:['January','February','March','April','May','June','July','August','September','October','November','December'],hOpen:'Online now · reply within 15 min',hEve:'Available 24/7 · reply within an hour',hNight:'Available 24/7 · we’ll reply soon',okT:n=>'Request #'+n+' sent',okOpen:'A manager will send options to the bot chat within 15 minutes',okEve:'We’ve got your request and will reply within an hour — options will arrive in the bot chat. If you’re flying today, turn on Urgent and we’ll call right away.',okNight:'We’ve got your request and will reply as soon as possible — options will arrive in the bot chat. If you’re flying today, turn on Urgent and we’ll call right away.',okU:'The on-duty manager will call you within 15 minutes',okUN:'Urgent request received — we’ve been alerted and will contact you as soon as possible',okBank:'Bank transfer: we’ll send the invoice to your group together with the ticket.',okCash:'Cash at the office: a manager will send the amount and address to the chat.',okQr:'QR payment: a manager will send the amount and QR code to the chat. Pay only after the amount is confirmed.',qrMiss:'Your manager will send the QR code to the group.',qrWarn:'Pay only after your manager confirms the amount. Then send a screenshot or receipt as a reply to the request card in your group.',again:'Another request'}};
+const RU = T.ru;
+const FAQ = {"ru": [["💰 Сколько стоят ваши услуги?", "Заявка и подбор вариантов бесплатные. Сервисный сбор — по нашему прайсу, менеджер назовёт его вместе с ценой билета. Итоговую сумму менеджер называет до оплаты, без скрытых доплат."], ["📈 Почему цена на билет меняется?", "Авиакомпании продают места по разным тарифам. Когда дешёвые места заканчиваются, цена растёт, иногда за несколько часов. Цену фиксирует бронь (если авиакомпания её позволяет) или выписка билета, поэтому лучше не откладывать."], ["📌 Можно забронировать без оплаты?", "Да, если авиакомпания и тариф это позволяют. Мы бронируем выбранный перелёт, и места с ценой сохраняются до срока брони — его назовёт менеджер. После оплаты выдаём электронный билет. Если не оплатить до срока, бронь снимается автоматически."], ["🧳 «С багажом» и «без багажа»", "«Без багажа» — только ручная кладь, её вес и размер зависят от авиакомпании. «С багажом» — ещё и чемодан в багажном отделении. Точные нормы менеджер укажет в каждом варианте."], ["↩️ Возврат и обмен билета", "Зависит от тарифа. Возвратные тарифы дороже, зато деньги можно вернуть (иногда за вычетом сбора). По невозвратным тарифам вернуть удаётся только часть или ничего. Условия менеджер сообщит до оплаты."], ["🛂 Какие данные нужны для покупки?", "ФИО латиницей как в паспорте, номер и срок действия паспорта, дата рождения каждого пассажира. Присылайте их только после того, как выберете вариант."], ["📅 Сколько должен действовать паспорт?", "Обычно не меньше 6 месяцев после возвращения. Многие страны не пускают с паспортом, который скоро истекает, — проверьте заранее."], ["👶 Билеты для детей", "Младенцы до 2 лет обычно летят без отдельного места и стоят дешевле. Для детей от 2 до 12 лет у многих авиакомпаний скидка. Укажите в форме возраст каждого ребёнка — менеджер посчитает точно."], ["🎫 Как я получу билет?", "Электронный билет придёт в этот чат файлом. Распечатывать не нужно, в аэропорту достаточно паспорта."], ["🖥 Что такое онлайн-регистрация?", "Регистрация на рейс на сайте авиакомпании, обычно за 24–48 часов до вылета. Она экономит время в аэропорту и даёт выбрать место. Если не получается — напишите нам, поможем."], ["🌍 Поможете с визой и отелем?", "Визы, отели, трансферы и туры оформляет наш партнёр ALFA TOUR. Напишите менеджеру — передадим ваш запрос."], ["⏱ Как быстро вы отвечаете?", "В рабочее время (Пн–Пт 10–18, Сб 10–16) — в течение 15 минут. Вечером, ночью и в выходные мы тоже на связи. Если вылет сегодня — отметьте «Срочно»."]], "uz": [["💰 Xizmatlaringiz qancha turadi?", "Ariza va variantlarni tanlash bepul. Xizmat haqi — narxlarimiz ro‘yxatiga ko‘ra, menejer uni chipta narxi bilan birga aytadi. Yakuniy summa to‘lovdan oldin, yashirin to‘lovlarsiz aytiladi."], ["📈 Nega chipta narxi o‘zgaradi?", "Aviakompaniyalar joylarni turli tariflarda sotadi. Arzon joylar tugagach, narx oshadi — ba’zan bir necha soat ichida. Narxni bron (agar aviakompaniya ruxsat bersa) yoki chiptani rasmiylashtirish qayd etadi, shuning uchun kechiktirmagan ma’qul."], ["📌 To‘lovsiz bron qilsa bo‘ladimi?", "Ha, agar aviakompaniya va tarif ruxsat bersa. Tanlangan parvozni bron qilamiz, joylar va narx bron muddatigacha saqlanadi — muddatni menejer aytadi. To‘lovdan so‘ng elektron chipta beramiz. Muddatgacha to‘lanmasa, bron avtomatik bekor bo‘ladi."], ["🧳 «Bagajli» va «bagajsiz»", "«Bagajsiz» — faqat qo‘l yuki, uning vazni va o‘lchami aviakompaniyaga bog‘liq. «Bagajli» — qo‘shimcha ravishda bagaj bo‘limiga topshiriladigan chamadon. Aniq me’yorlarni menejer har bir variantda ko‘rsatadi."], ["↩️ Chiptani qaytarish va almashtirish", "Tarifga bog‘liq. Qaytariladigan tariflar qimmatroq, lekin pulni qaytarish mumkin (ba’zan jarima ushlab qolinadi). Qaytarilmaydigan tariflarda pulning faqat bir qismi qaytadi yoki umuman qaytmaydi. Shartlarni menejer to‘lovdan oldin aytadi."], ["🛂 Xarid uchun qanday ma’lumotlar kerak?", "Har bir yo‘lovchining pasportdagidek lotin harflarida F.I.Sh., pasport raqami va amal qilish muddati, tug‘ilgan sanasi. Ularni faqat variantni tanlaganingizdan keyin yuboring."], ["📅 Pasport qancha amal qilishi kerak?", "Odatda qaytgandan keyin kamida 6 oy. Ko‘p davlatlar muddati tugayotgan pasport bilan kiritmaydi — oldindan tekshiring."], ["👶 Bolalar uchun chiptalar", "2 yoshgacha bo‘lgan go‘daklar odatda alohida joysiz uchadi va arzonroq turadi. 2 yoshdan 12 yoshgacha bo‘lgan bolalarga ko‘p aviakompaniyalarda chegirma bor. Shaklda har bir bolaning yoshini ko‘rsating — menejer aniq hisoblaydi."], ["🎫 Chiptani qanday olaman?", "Elektron chipta shu chatga fayl ko‘rinishida keladi. Chop etish shart emas, aeroportda pasport kifoya."], ["🖥 Onlayn ro‘yxatdan o‘tish nima?", "Aviakompaniya saytida reysga ro‘yxatdan o‘tish, odatda parvozdan 24–48 soat oldin. U aeroportda vaqtni tejaydi va joy tanlash imkonini beradi. Uddalay olmasangiz — bizga yozing, yordam beramiz."], ["🌍 Viza va mehmonxonada yordam berasizmi?", "Viza, mehmonxona, transfer va turlarni hamkorimiz ALFA TOUR rasmiylashtiradi. Menejerga yozing — so‘rovingizni yetkazamiz."], ["⏱ Qanchalik tez javob berasiz?", "Ish vaqtida (Du–Ju 10–18, Sh 10–16) — 15 daqiqa ichida. Kechqurun, tunda va dam olish kunlari ham aloqadamiz. Parvoz bugun bo‘lsa — «Shoshilinch» deb belgilang."]], "en": [["💰 How much do your services cost?", "Requests and finding options are free. The service fee follows our price list, and the manager states it together with the ticket price. You get the final amount before paying, with no hidden extras."], ["📈 Why does the ticket price change?", "Airlines sell seats at different fares. When the cheaper seats run out, the price goes up, sometimes within hours. The price is locked by a booking (if the airline allows it) or by issuing the ticket, so it’s best not to wait."], ["📌 Can I book without paying?", "Yes, if the airline and fare allow it. We book your chosen flight, and the seats and price are held until the booking deadline — the manager will tell you when. After payment we issue your e-ticket. If it isn’t paid by the deadline, the booking is cancelled automatically."], ["🧳 “With baggage” vs “no baggage”", "“No baggage” means carry-on only; its weight and size depend on the airline. “With baggage” adds a checked suitcase. The manager lists the exact allowances for each option."], ["↩️ Refunds and changes", "It depends on the fare. Refundable fares cost more, but you can get your money back (sometimes minus a fee). With non-refundable fares, only part of the money or nothing is returned. The manager explains the rules before you pay."], ["🛂 What details do you need?", "Each passenger’s full name in Latin letters exactly as in the passport, passport number and expiry date, and date of birth. Please send them only after you’ve chosen an option."], ["📅 How long must my passport be valid?", "Usually at least 6 months after your return. Many countries refuse entry with a passport that is about to expire — check in advance."], ["👶 Tickets for children", "Infants under 2 usually fly without their own seat and cost less. Many airlines give discounts for children aged 2 to 12. Enter each child’s age in the form, and the manager will calculate the exact price."], ["🎫 How will I get my ticket?", "Your e-ticket arrives in this chat as a file. No need to print it — your passport is enough at the airport."], ["🖥 What is online check-in?", "Checking in for your flight on the airline’s website, usually 24–48 hours before departure. It saves time at the airport and lets you choose a seat. If it doesn’t work, message us and we’ll help."], ["🌍 Can you help with visas and hotels?", "Visas, hotels, transfers and tours are handled by our partner ALFA TOUR. Message a manager and we’ll pass your request on."], ["⏱ How fast do you reply?", "During working hours (Mon–Fri 10–18, Sat 10–16) — within 15 minutes. We’re also available in the evening, at night and on weekends. If you’re flying today, mark your request “Urgent”."]]};
+const ADDR = {"ru": "г. Ташкент, Шайхантахурский район, ул. Кукча Дарвоза, д. 2, кв. 56", "uz": "Toshkent sh., Shayxontohur tumani, Ko‘kcha Darvoza ko‘chasi, 2-uy, 56-xonadon", "en": "2 Kukcha Darvoza St., apt. 56, Shaykhantakhur district, Tashkent"};
+const PHONE = '+998 93 392 99 99', MAP_URL = 'https://share.google/jK58O8VTE1ipLEw3p';
+const POLICY_URL = new URL('privacy.html', location.href).href;
+
+const tg = window.Telegram && Telegram.WebApp;
+const $ = id => document.getElementById(id);
+const qs = (sel, el) => [...(el || document).querySelectorAll(sel)];
+// Ж/д билеты: поменяйте на true, когда появится доступ к продаже
+const TRAIN_ON = true;
+let L = 'ru', M = 'pl', moreOpen = false, PL = [], ST = [], CODE = '', DEMO = false;
+const s = { ad: 1, ch: 0 };
+let legs = [];
+
+// ---------- Тема Telegram ----------
+function rgba(hex, a) { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return ''; const n = parseInt(m[1], 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; }
+function theme() {
+  if (!tg) return;
+  const p = tg.themeParams || {}, r = document.documentElement.style, dark = tg.colorScheme === 'dark';
+  const set = (k, v) => { if (v) r.setProperty(k, v); };
+  set('--bg', p.secondary_bg_color); set('--sec', p.section_bg_color || p.bg_color); set('--tx', p.text_color); set('--hint', p.hint_color);
+  set('--acc', p.link_color || p.button_color); set('--btn', p.button_color); set('--btx', p.button_text_color);
+  set('--accT', rgba(p.link_color || p.button_color, .14));
+  if (dark) { set('--wb', 'rgba(255,190,60,.16)'); set('--wt', '#f5c56b'); set('--db', 'rgba(255,90,80,.16)'); set('--dt', '#ff8a80'); set('--ob', 'rgba(80,220,120,.16)'); set('--ot', '#7fd99a'); }
+  // Фирменные цвета ALFA TICKET
+  set('--btn', '#164C9A'); set('--btx', '#ffffff');
+  set('--acc', dark ? '#6FA0E8' : '#164C9A'); set('--accT', dark ? 'rgba(111,160,232,.18)' : 'rgba(22,76,154,.10)');
+  try { tg.setHeaderColor('secondary_bg_color'); tg.setBackgroundColor('secondary_bg_color'); } catch (e) {}
+}
+
+// ---------- Время Ташкента ----------
+function tashParts() {
+  const now = new Date();
+  const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tashkent', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
+  const p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tashkent', weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(now);
+  const wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.find(x => x.type === 'weekday').value);
+  const h = (+p.find(x => x.type === 'hour').value % 24) + (+p.find(x => x.type === 'minute').value) / 60;
+  return { date, wd, h };
+}
+function period() {
+  const { date, wd, h } = tashParts();
+  if (h < 9) return 'night';
+  if (HOL.includes(date)) return 'eve';
+  if ((wd >= 1 && wd <= 5 && h >= 10 && h < 18) || (wd === 6 && h >= 10 && h < 16)) return 'open';
+  return 'eve';
+}
+function today() { return new Date(tashParts().date + 'T00:00:00'); }
+
+// ---------- Даты ----------
+function mask(v) { const d = v.replace(/\D/g, '').slice(0, 8); let o = d.slice(0, 2); if (d.length > 2) o += '.' + d.slice(2, 4); if (d.length > 4) o += '.' + d.slice(4); return o; }
+function parseD(v) { const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(v || ''); if (!m) return null; const d = new Date(+m[3], +m[2] - 1, +m[1]); return d.getDate() === +m[1] && d.getMonth() === +m[2] - 1 ? d : null; }
+const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const fmt = d => String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear();
+function dateField(holder, onChange) {
+  holder.innerHTML = '<input class="in" inputmode="numeric" maxlength="10"><label class="cal">📅<input type="date" tabindex="-1"></label>';
+  const tx = holder.querySelector('.in'), c = holder.querySelector('input[type=date]');
+  tx.placeholder = T[L].dPh;
+  tx.addEventListener('input', () => { tx.value = mask(tx.value); onChange(); });
+  c.addEventListener('change', () => { if (c.value) { const [y, m, d] = c.value.split('-'); tx.value = d + '.' + m + '.' + y; onChange(); } });
+  return { tx, c };
+}
+function dateHint(el, v, min) {
+  el.className = 'dh'; el.textContent = '';
+  if (!v) return true;
+  if (v.length < 10) return false;
+  const d = parseD(v), t = T[L];
+  if (!d) { el.textContent = t.bad; el.className = 'dh bad'; return false; }
+  if (d < today()) { el.textContent = t.past; el.className = 'dh bad'; return false; }
+  if (min && d < min) { el.textContent = t.order; el.className = 'dh bad'; return false; }
+  el.textContent = t.wd[d.getDay()] + ', ' + d.getDate() + ' ' + t.mo[d.getMonth()] + ' ' + d.getFullYear();
+  return true;
+}
+
+// ---------- Подсказки городов ----------
+function attachAC(inp) {
+  const list = document.createElement('div'); list.className = 'acl'; inp.parentNode.appendChild(list);
+  const li = { ru: 0, uz: 1, en: 2 };
+  const show = () => {
+    const q = inp.value.trim().toLowerCase(); const src = M === 'tr' ? ST : PL;
+    if (q.length < 2) { list.style.display = 'none'; return; }
+    const rank = p => { const lab = p[li[L]].toLowerCase(); if (lab.startsWith(q)) return 0; if ((' ' + p[3]).includes(' ' + q)) return 1; return 2; };
+    const res = src.filter(p => p[3].includes(q) || p[li[L]].toLowerCase().includes(q)).sort((a, b) => rank(a) - rank(b)).slice(0, 8);
+    if (!res.length) { list.style.display = 'none'; return; }
+    list.innerHTML = ''; res.forEach(p => { const d = document.createElement('div'); d.className = 'aci'; d.textContent = p[li[L]];
+      d.addEventListener('mousedown', e => { e.preventDefault(); inp.value = p[li[L]]; inp.dataset.ru = p[0]; list.style.display = 'none'; inp.dispatchEvent(new Event('change')); }); list.appendChild(d); });
+    list.style.display = 'block';
+  };
+  inp.addEventListener('input', () => { inp.dataset.ru = ''; show(); clr(); });
+  inp.addEventListener('focus', show);
+  inp.addEventListener('blur', () => setTimeout(() => list.style.display = 'none', 150));
+}
+const ruVal = inp => (inp.dataset.ru || inp.value).trim();
+
+// ---------- Чипы и переключатели ----------
+const on = id => qs('.chip.on', $(id)).map(b => b.dataset.v);
+const trip = () => on('trip')[0];
+function chips(id, multi, cb) {
+  $(id).addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return;
+    if (multi) b.classList.toggle('on'); else { qs('.chip', $(id)).forEach(x => x.classList.remove('on')); b.classList.add('on'); }
+    if (cb) cb(); clr(); });
+}
+function sw(id, cb) { $(id).addEventListener('click', () => { $(id).classList.toggle('on'); if (cb) cb(); }); }
+const swOn = id => $(id).classList.contains('on');
+function clr() { ['e1','e2','e3','e4','e5','e6','e7'].forEach(i => $(i).textContent = ''); }
+
+// ---------- Отрисовка ----------
+let D1, D2;
+function tr() {
+  const t = T[L];
+  qs('[data-i]').forEach(e => { const v = t[e.dataset.i]; if (typeof v === 'string') e.textContent = v; });
+  if (TRAIN_ON) $('trSoon').textContent = ''; else document.querySelector('#mode [data-m=tr]').classList.add('dis');
+  qs('[data-p]').forEach(e => e.placeholder = t[e.dataset.p]);
+  qs('.df .in').forEach(e => e.placeholder = t.dPh);
+  qs('.lg').forEach(b => b.classList.toggle('on', b.dataset.l === L));
+  $('moreT').textContent = moreOpen ? t.less : t.more;
+  hdr(); payHint(); ages(); renderLegs(); checkDates();
+  document.documentElement.lang = L;
+}
+function hdr() { const t = T[L], p = period(); $('hs').textContent = p === 'open' ? t.hOpen : p === 'eve' ? t.hEve : t.hNight; $('dot').style.background = p === 'open' ? '#34c759' : 'var(--acc)'; }
+function payHint() { const v = on('pay')[0], h = $('payH'); h.classList.toggle('hide', !v); if (v) h.textContent = T[L][v + 'H']; }
+function applyMode() {
+  qs('[data-only]').forEach(e => e.classList.toggle('hide', e.dataset.only !== M));
+  if (M === 'tr' && trip() === 'mc') setTrip('rt');
+  syncTrip(); clr();
+}
+function setTrip(v) { qs('.chip', $('trip')).forEach(x => x.classList.toggle('on', x.dataset.v === v)); }
+function syncTrip() { const v = trip(); $('simple').classList.toggle('hide', v === 'mc'); $('multi').classList.toggle('hide', v !== 'mc'); $('d2w').classList.toggle('hide', v !== 'rt'); checkDates(); }
+function ages() {
+  const t = T[L], a = $('ages'), cur = qs('select', a).map(x => x.value); a.innerHTML = '';
+  for (let i = 0; i < s.ch; i++) { let o = '<option value="">' + t.pick + '</option>'; for (let y = 0; y < 12; y++) o += '<option value="' + y + '">' + (y === 0 ? t.y0 : t.y(y)) + '</option>';
+    const r = document.createElement('div'); r.className = 'rw'; r.innerHTML = '<span style="color:var(--hint)">' + t.age + ' ' + (i + 1) + '</span><select>' + o + '</select>'; a.appendChild(r);
+    const q = r.querySelector('select'); if (cur[i] !== undefined) q.value = cur[i]; q.onchange = clr; }
+}
+function renderLegs() {
+  const t = T[L], w = $('legs'); w.innerHTML = '';
+  legs.forEach((g, i) => {
+    const d = document.createElement('div'); d.className = 'leg';
+    d.innerHTML = '<div class="legh"><span>' + t.leg + ' ' + (i + 1) + '</span>' + (legs.length > 2 ? '<button class="lnk" data-x="' + i + '" style="padding:0 4px">✕</button>' : '') + '</div>' +
+      '<div class="rw"><div class="acw"><input class="in ac" data-k="f" placeholder="' + t.pFrom + '" autocomplete="off"></div></div>' +
+      '<div class="rw"><div class="acw"><input class="in ac" data-k="t" placeholder="' + t.pTo + '" autocomplete="off"></div></div>' +
+      '<div class="rw"><div class="df"></div></div><div class="dh"></div>' +
+      '<div class="rw fl"><span style="color:var(--hint);font-size:13px">🕘</span><input class="in" data-k="fl" maxlength="40" autocomplete="off" placeholder="' + t.pFl + '"></div>';
+    w.appendChild(d);
+    const f = d.querySelector('[data-k=f]'), to = d.querySelector('[data-k=t]');
+    f.value = g.f; f.dataset.ru = g.fr || ''; to.value = g.t; to.dataset.ru = g.tr || '';
+    const fl = d.querySelector('[data-k=fl]'); fl.value = g.fl || ''; fl.addEventListener('input', () => { g.fl = fl.value; });
+    attachAC(f); attachAC(to);
+    const sync = () => { g.f = f.value; g.fr = f.dataset.ru; g.t = to.value; g.tr = to.dataset.ru; };
+    f.addEventListener('input', sync); f.addEventListener('change', sync); to.addEventListener('input', sync);
+    to.addEventListener('change', () => { sync(); const n = legs[i + 1]; if (n && !n.f) { n.f = g.t; n.fr = g.tr; renderLegs(); } });
+    const df = dateField(d.querySelector('.df'), () => { g.d = df.tx.value; checkDates(); clr(); });
+    df.tx.value = g.d || '';
+    g.el = { tx: df.tx, c: df.c, h: d.querySelector('.dh') };
+  });
+  qs('[data-x]', w).forEach(b => b.onclick = () => { legs.splice(+b.dataset.x, 1); renderLegs(); });
+  $('addLeg').classList.toggle('hide', legs.length >= 5);
+  checkDates();
+}
+function checkDates() {
+  if (!D1) return true;
+  let ok = true, last = null;
+  const t0 = iso(today());
+  if (trip() === 'mc') {
+    let prev = null;
+    legs.forEach(g => { if (!g.el) return; g.el.c.min = prev ? iso(prev) : t0; if (!dateHint(g.el.h, g.d, prev)) ok = false; const d = parseD(g.d); if (d) { prev = d; last = d; } });
+  } else {
+    D1.c.min = t0;
+    const a = dateHint($('dh1'), D1.tx.value, null); const d1 = parseD(D1.tx.value);
+    D2.c.min = d1 ? iso(d1) : t0;
+    const b = trip() === 'rt' ? dateHint($('dh2'), D2.tx.value, d1) : true;
+    ok = a && b;
+    last = (trip() === 'rt' && parseD(D2.tx.value)) || d1;
+  }
+  if (last && ok) { const d = new Date(last); d.setMonth(d.getMonth() + 6); $('pp').innerHTML = T[L].ppD + ' <b>' + fmt(d) + '</b> ' + T[L].ppE; } else $('pp').textContent = '';
+  return ok;
+}
+
+// ---------- Сбор заявки ----------
+function collect() {
+  const t = T[L]; clr(); let g = true; const mc = trip() === 'mc';
+  if (mc) { if (legs.some(x => !x.f.trim() || !x.t.trim() || !x.d)) { $('e1').textContent = t.e1m; g = false; } }
+  else if (!ruVal($('from')) || !ruVal($('to')) || !D1.tx.value || (trip() === 'rt' && !D2.tx.value)) { $('e1').textContent = t.e1; g = false; }
+  if (g && !checkDates()) { $('e1').textContent = t.eDate; g = false; }
+  const ag = qs('select', $('ages')).map(x => x.value);
+  if (ag.includes('')) { $('e2').textContent = t.e2; g = false; }
+  if (M === 'pl' && !on('fare').length) { $('e3').textContent = t.e3; g = false; }
+  const cls = on(M === 'tr' ? 'tcls' : 'cls');
+  if (!cls.length) { $('e4').textContent = t.e4; g = false; }
+  const pay = on('pay')[0];
+  if (!pay) { $('e5').textContent = t.e5; g = false; }
+  if (M === 'pl' && !$('ppOk').checked) { $('e7').textContent = t.e7; g = false; }
+  if (!g) { const e = qs('.er').find(x => x.textContent); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'center' }); return null; }
+
+  const lbl = v => RU[v] || v.toUpperCase();
+  const route = mc ? legs.map(x => (x.fr || x.f) + ' → ' + (x.tr || x.t) + ' (' + x.d + ')').join('; ') : ruVal($('from')) + ' → ' + ruVal($('to'));
+  const flex = swOn('flx') ? ' (гибкие ±3 дня)' : '';
+  const flights = mc ? legs.map((x, i) => (x.fl || '').trim() ? (t.leg + ' ' + (i + 1) + ': ' + x.fl.trim()) : '').filter(Boolean).join('; ')
+    : [$('fl1').value.trim() ? 'Туда: ' + $('fl1').value.trim() : '', trip() === 'rt' && $('fl2').value.trim() ? 'Обратно: ' + $('fl2').value.trim() : ''].filter(Boolean).join('; ');
+  const dates = mc ? (flex ? 'гибкие ±3 дня' : '') : D1.tx.value + (trip() === 'rt' ? ' – ' + D2.tx.value : '') + flex;
+  const kids = ag.map(a => a === '0' ? 'до 1 г.' : a + ' л.');
+  const pax = 'Взрослых: ' + s.ad + (kids.length ? '; дети: ' + kids.join(', ') : '');
+  const seatMap = { w: 'sW', a: 'sA', t: 'sT' };
+  const add = on('add').map(v => v === 'seat' ? RU.seat + (on('seatP').length ? ' (' + on('seatP').map(x => RU[seatMap[x]]).join(', ').toLowerCase() + ')' : '') : lbl(v));
+  const prefs = [];
+  if (M === 'pl' && on('dir').length) prefs.push(on('dir').map(lbl).join(' или '));
+  if (M === 'pl' && on('dir').includes('via') && on('lay')[0] !== 'any') prefs.push('пересадка до ' + lbl('l' + on('lay')[0]));
+  if (on('tm').length) prefs.push('время: ' + on('tm').map(lbl).join(', ').toLowerCase());
+  const tv = on('tt')[0];
+  const train = M === 'tr' ? lbl(tv === 'any' ? 'tAny' : tv) + '; нет мест — ' + (swOn('fb') ? 'предложить другой поезд или самолёт' : 'не предлагать замену') : '';
+  const clsTxt = cls.map(lbl).join(' + ');
+  const shortRoute = mc ? legs.map(x => x.fr || x.f).concat([legs[legs.length - 1].tr || legs[legs.length - 1].t]).join(' → ') : route;
+  const short = shortRoute + ' · ' + (mc ? legs[0].d : D1.tx.value + (trip() === 'rt' ? ' – ' + D2.tx.value : '')) + ' · ' + s.ad + ' взр.' + (kids.length ? ' + ' + kids.length + ' реб.' : '') + ' · ' + clsTxt;
+  // Короткое описание на языке клиента — для подтверждения в чате
+  const locRoute = mc ? legs.map(x => x.f).concat([legs[legs.length - 1].t]).join(' → ') : $('from').value.trim() + ' → ' + $('to').value.trim();
+  const locDates = mc ? legs.map(x => x.d).join(', ') : D1.tx.value + (trip() === 'rt' ? ' – ' + D2.tx.value : '') + (swOn('flx') ? ' (±3)' : '');
+  const locPax = t.adults + ': ' + s.ad + (kids.length ? '; ' + t.kids.toLowerCase() + ': ' + ag.map(a => a === '0' ? t.y0 : t.y(+a)).join(', ') : '');
+  return {
+    loc: { icon: M === 'tr' ? '🚆' : '✈️', route: locRoute, dates: locDates, pax: locPax },
+    mode: M === 'tr' ? 'Поезд' : 'Самолёт', trip: RU[trip()], route, dates, pax, ppOk: M === 'pl' && $('ppOk').checked, flights,
+    fare: M === 'pl' ? on('fare').map(lbl).join(' + ') : '', cls: clsTxt,
+    add: M === 'pl' ? add.join(', ') : '', train, prefs: prefs.join('; '),
+    tour: on('ex').filter(v => M === 'pl' || v !== 'visa').map(lbl).join(', '),
+    comment: $('cm').value.trim(), pay: RU[pay], payKey: pay,
+    urgent: swOn('urg'), period: period(), short
+  };
+}
+
+async function send() {
+  const data = collect(); if (!data) return;
+  const t = T[L], b = $('send');
+  b.disabled = true; b.textContent = t.sending;
+  try {
+    const r = await fetch(API, { method: 'POST', body: JSON.stringify({ kind: 'request', initData: tg ? tg.initData : '', lang: L, data }) });
+    const j = await r.json();
+    if (!j.ok) { if (j.error === 'consent') { setReg(false); show('ob'); $('eOb').textContent = t.eConsent; return; } $('e6').textContent = j.error === 'auth' ? t.eAuth : t.eNet; return; }
+    try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    showOk(j.id, data);
+  } catch (e) { $('e6').textContent = t.eNet; }
+  finally { b.disabled = false; b.textContent = t.send; }
+}
+let last = null;
+function showOk(id, data) { last = { id, urgent: data.urgent, p: data.period, pay: data.payKey }; okFill(); show('ok'); }
+function okFill() {
+  if (!last) return;
+  const t = T[L], p = last.p; let S, ic, bg, col;
+  if (last.urgent) { S = p === 'night' ? t.okUN : t.okU; ic = '📞'; bg = 'var(--db)'; col = 'var(--dt)'; }
+  else { S = p === 'open' ? t.okOpen : p === 'eve' ? t.okEve : t.okNight; ic = p === 'night' ? '🌙' : '✓'; bg = p === 'night' ? 'var(--accT)' : 'var(--ob)'; col = p === 'night' ? 'var(--acc)' : 'var(--ot)'; }
+  $('okT').textContent = t.okT(last.id); $('okS').textContent = S;
+  $('okP').textContent = last.pay === 'cash' ? t.okCash : t.okQr;
+  const e = $('okI'); e.style.background = bg; e.style.color = col; e.textContent = ic;
+}
+
+// ---------- Экраны ----------
+function fatal(msg) { $('loading').classList.add('hide'); $('fatal').textContent = msg; $('fatal').classList.remove('hide'); }
+const SCREENS = ['loading', 'fatal', 'ob', 'form', 'ok', 'pn'];
+let cur = 'loading', back = null, panel = null;
+function show(id) { SCREENS.forEach(x => $(x).classList.toggle('hide', x !== id)); cur = id; window.scrollTo(0, 0); }
+function bb(on) { try { on ? tg.BackButton.show() : tg.BackButton.hide(); } catch (e) {} }
+function openLink(u) { try { tg.openLink(u); } catch (e) { window.open(u, '_blank'); } }
+function openPanel(k) {
+  if (cur !== 'pn') back = cur;
+  panel = k; renderPanel(); show('pn'); bb(true);
+}
+function closePanel() { panel = null; show(back || 'form'); bb(false); }
+function renderPanel() {
+  if (!panel) return;
+  const t = T[L], b = $('pnB');
+  $('pnT').textContent = panel === 'faq' ? t.faqT : panel === 'mgr' ? t.mgrT : t.privT;
+  if (panel === 'faq') {
+    b.innerHTML = '<div class="sec">' + FAQ[L].map(q => '<details class="qa"><summary></summary><div></div></details>').join('') + '</div>';
+    qs('.qa', b).forEach((d, i) => { d.querySelector('summary').textContent = FAQ[L][i][0]; d.querySelector('div').textContent = FAQ[L][i][1]; });
+  } else if (panel === 'mgr') {
+    b.innerHTML = '<div class="sec pl"><div id="m1"></div><div style="margin-top:10px"><b><a href="tel:+998933929999">' + PHONE + '</a></b></div><div id="m2" style="color:var(--hint)"></div><div id="m3" style="color:var(--hint);font-size:13px"></div></div>' +
+      '<button class="mb" id="mCall"></button><button class="mb out" id="mMap"></button><button class="mb out" id="mChat"></button>';
+    $('m1').textContent = t.mgrTxt; $('m2').textContent = ADDR[L]; $('m3').textContent = t.hours;
+    $('mCall').textContent = t.bCall; $('mMap').textContent = t.bMapO; $('mChat').textContent = t.bChat;
+    $('mCall').onclick = () => { location.href = 'tel:+998933929999'; };
+    $('mMap').onclick = () => openLink(MAP_URL);
+    $('mChat').onclick = () => { try { tg.close(); } catch (e) {} };
+  } else {
+    b.innerHTML = '<div class="sec pl" id="p1"></div><button class="mb out" id="pPol"></button><button class="mb red" id="pWd"></button><div class="er" id="pE" style="margin-top:8px"></div>';
+    $('p1').textContent = t.privTxt; $('pPol').textContent = t.bPol; $('pWd').textContent = t.bWd;
+    $('pPol').onclick = () => openLink(POLICY_URL + '?l=' + L);
+    $('pWd').onclick = () => {
+      const go = ok => { if (!ok) return;
+        api({ kind: 'withdraw' }).then(j => {
+          if (!j.ok) { $('pE').textContent = T[L].eNet; return; }
+          setReg(false); try { tg.showAlert(T[L].wdOk); } catch (e) {}
+          panel = null; bb(false); $('obOk').checked = false; show('ob');
+        }).catch(() => { $('pE').textContent = T[L].eNet; });
+      };
+      try { tg.showConfirm(t.wdQ, go); } catch (e) { go(confirm(t.wdQ)); }
+    };
+  }
+}
+
+// ---------- Сервер ----------
+const api = body => fetch(API, { method: 'POST', body: JSON.stringify(Object.assign({ initData: tg.initData, lang: L }, body)) }).then(r => r.json());
+let REGKEY = 'alfa_reg';
+function isReg() { try { return localStorage.getItem(REGKEY) === '1'; } catch (e) { return false; } }
+function setReg(v) { try { v ? localStorage.setItem(REGKEY, '1') : localStorage.removeItem(REGKEY); } catch (e) {} }
+
+// ---------- Запуск ----------
+let formBuilt = false, QP, SRC = '', wantTrain = false;
+async function buildForm() {
+  if (formBuilt) return true;
+  const KEY = 'alfa_fl_init';
+  const load = () => fetch(API + '?a=init').then(r => r.json());
+  const apply = j => { PL = j.places || []; ST = j.stations || []; };
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+  if (cached && cached.places && cached.places.length) {
+    apply(cached); // мгновенно из памяти телефона, свежие данные — в фоне
+    load().then(j => { if (j.ok) { apply(j); try { localStorage.setItem(KEY, JSON.stringify(j)); } catch (e) {} } }).catch(() => {});
+  } else {
+    try { const j = await load(); if (!j.ok) return false; apply(j); try { localStorage.setItem(KEY, JSON.stringify(j)); } catch (e) {} }
+    catch (e) { return false; }
+  }
+  D1 = dateField($('df1'), () => { checkDates(); clr(); });
+  D2 = dateField($('df2'), () => { checkDates(); clr(); });
+  const fromDef = PL.find(p => p[3].includes('tas') && p[3].includes('ташкент'));
+  if (fromDef) { $('from').value = fromDef[{ ru: 0, uz: 1, en: 2 }[L]]; $('from').dataset.ru = fromDef[0]; }
+  attachAC($('from')); attachAC($('to'));
+  legs = [{ f: $('from').value, fr: $('from').dataset.ru, t: '', tr: '', d: '' }, { f: '', fr: '', t: '', tr: '', d: '' }];
+  $('ppMore').onclick = e => { e.preventDefault(); e.stopPropagation(); $('ppL').classList.toggle('hide'); };
+  $('mode').onclick = e => { const b = e.target.closest('button'); if (!b) return;
+    if (!TRAIN_ON && b.dataset.m === 'tr') { $('trSoonNote').classList.toggle('hide'); return; } qs('button', $('mode')).forEach(x => x.classList.remove('on')); b.classList.add('on'); M = b.dataset.m;
+    const st = M === 'tr' ? ST.find(p => p[0] === 'Ташкент') : PL.find(p => p[3].includes('tas') && p[3].includes('ташкент'));
+    $('from').value = st ? st[{ ru: 0, uz: 1, en: 2 }[L]] : ''; $('from').dataset.ru = st ? st[0] : ''; $('to').value = ''; $('to').dataset.ru = ''; applyMode(); };
+  chips('trip', 0, syncTrip); chips('lay'); chips('tt'); chips('seatP'); chips('pay', 0, payHint);
+  chips('dir', 1, () => $('layW').classList.toggle('hide', !on('dir').includes('via')));
+  chips('add', 1, () => $('seatW').classList.toggle('hide', !on('add').includes('seat')));
+  ['fare', 'cls', 'tcls', 'tm', 'ex'].forEach(i => chips(i, 1));
+  sw('urg', () => $('urgBox').style.background = swOn('urg') ? 'var(--db)' : ''); sw('flx'); sw('fb');
+  $('more').onclick = () => { moreOpen = !moreOpen; $('moreBox').classList.toggle('hide', !moreOpen); $('moreI').textContent = moreOpen ? '▴' : '▾'; $('moreT').textContent = moreOpen ? T[L].less : T[L].more; };
+  qs('[data-c]').forEach(b => b.onclick = () => { const k = b.dataset.c, v = s[k] + +b.dataset.d; if (v < (k === 'ad' ? 1 : 0) || v > 9) return; s[k] = v; $(k).textContent = v; if (k === 'ch') ages(); clr(); });
+  $('addLeg').onclick = () => { const p = legs[legs.length - 1]; legs.push({ f: p.t || '', fr: p.tr || '', t: '', tr: '', d: '' }); renderLegs(); };
+  $('send').onclick = send;
+  $('again').onclick = () => { try { tg.close(); } catch (e) {} };
+  $('again2').onclick = () => show('form');
+  applyMode(); tr();
+  if (wantTrain && TRAIN_ON) document.querySelector('#mode [data-m=tr]').click();
+  setInterval(hdr, 60000);
+  formBuilt = true;
+  return true;
+}
+async function showForm() {
+  if (!formBuilt) { show('loading'); if (!(await buildForm())) return fatal(T[L].eNet); }
+  show('form');
+}
+
+function register() {
+  const t = T[L], e = $('eOb'), btn = $('obBtn');
+  e.textContent = '';
+  if (!$('obOk').checked) { e.textContent = t.obNeedC; return; }
+  if (!tg.requestContact || !(tg.isVersionAtLeast && tg.isVersionAtLeast('6.9'))) { e.textContent = t.obOld; return; }
+  tg.requestContact((ok, resp) => {
+    if (!ok) { e.textContent = T[L].obDenied; return; }
+    btn.disabled = true; btn.textContent = T[L].obSaving;
+    api({ kind: 'register', contact: resp && resp.response ? resp.response : '', src: SRC })
+      .then(j => {
+        if (!j.ok) { e.textContent = j.error === 'auth' ? T[L].eAuth : T[L].eNet; return; }
+        setReg(true); try { tg.HapticFeedback.notificationOccurred('success'); } catch (x) {}
+        return showForm();
+      })
+      .catch(() => { e.textContent = T[L].eNet; })
+      .finally(() => { btn.disabled = false; btn.textContent = T[L].obPhone; });
+  });
+}
+
+async function init() {
+  theme();
+  QP = new URLSearchParams(location.search);
+  try { const saved = localStorage.getItem('alfa_lang'); if (saved && T[saved]) L = saved; else if (tg && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code === 'uz') L = 'uz'; else if (tg && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code === 'en') L = 'en'; } catch (e) {}
+  if (T[QP.get('l')]) L = QP.get('l'); // язык из бота
+  if (tg) { tg.ready(); tg.expand(); }
+  $('loading').textContent = { ru: 'Загрузка…', uz: 'Yuklanmoqda…', en: 'Loading…' }[L];
+  if (!tg || !tg.initData) return fatal(T[L].eAuth);
+  const u = tg.initDataUnsafe.user || {};
+  REGKEY = 'alfa_reg_' + (u.id || '');
+  SRC = (QP.get('src') || tg.initDataUnsafe.start_param || '').slice(0, 40);
+  const sp = tg.initDataUnsafe.start_param || '';
+  wantTrain = QP.get('m') === 'tr' || /^tr(ain)?(_|$)/i.test(sp);
+
+  // Общие кнопки
+  qs('.lg').forEach(b => b.onclick = () => { L = b.dataset.l; try { localStorage.setItem('alfa_lang', L); } catch (e) {} tr(); okFill(); renderPanel(); });
+  qs('[data-pn]').forEach(b => b.onclick = () => openPanel(b.dataset.pn));
+  try { tg.BackButton.onClick(closePanel); } catch (e) {}
+  $('obBtn').onclick = register;
+  $('obPol').onclick = e => { e.preventDefault(); openLink(POLICY_URL + '?l=' + L); };
+  $('obOk').onchange = () => { $('eOb').textContent = ''; };
+  tr();
+
+  const view = QP.get('v');
+  if (isReg()) {
+    await showForm();
+  } else {
+    show('ob');
+    buildForm(); // справочники грузятся в фоне, пока клиент читает
+  }
+  if (view === 'faq' || view === 'mgr' || view === 'priv') openPanel(view);
+
+  // Фоновая сверка с сервером: согласие могли отозвать или дать с другого устройства
+  api({ kind: 'status' }).then(j => {
+    if (!j || !j.ok) return;
+    if (j.reg && !isReg()) { setReg(true); if (cur === 'ob') showForm(); }
+    else if (!j.reg && isReg()) { setReg(false); if (cur === 'form') show('ob'); }
+  }).catch(() => {});
+}
+init();
+</script>
+</body>
+</html>
