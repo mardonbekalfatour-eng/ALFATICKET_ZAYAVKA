@@ -363,8 +363,7 @@ select{border:1px solid var(--sep);background:#fff;border-radius:8px;height:34px
   </div>
   <div class="sh up4" data-i="popH"></div>
   <div class="pop up4" id="pop"></div>
-  <button class="corp up4" id="corp"><span id="corpT"></span><span class="all hide" id="corpA">APEX INSURANCE · APEX BANK · APEX LIFE · APEX DEVELOPMENT · TMZ · KAFOLAT SUG‘URTA · ASIA INSURANCE · ANKHOR INVEST · MAGNOLIA FLOWER</span></button>
-  <div class="ft"><button data-pn="faq" data-i="fFaq"></button><button data-pn="mgr" data-i="fMgr"></button><button data-pn="priv" data-i="fPriv"></button></div>
+    <div class="ft"><button data-pn="faq" data-i="fFaq"></button><button data-pn="mgr" data-i="fMgr"></button><button data-pn="priv" data-i="fPriv"></button></div>
 </div>
 
 <!-- НОВОСТЬ -->
@@ -1029,7 +1028,6 @@ function renderHome() {
   }
   $('hGo').textContent = t.hGo[M];
   $('tr1').innerHTML = t.tr1; $('tr2').innerHTML = t.tr2; $('tr3').innerHTML = t.tr3;
-  $('corpT').innerHTML = t.corp;
   $('pop').innerHTML = '';
   POP.forEach(x => {
     const p = popPlace(x), b = document.createElement('button');
@@ -1443,7 +1441,6 @@ function init() {
     if (!formBuilt) return; haptic(); $('hSwap').classList.toggle('spin');
     const a = $('from'), b = $('to'), v = a.value, r = a.dataset.ru; a.value = b.value; a.dataset.ru = b.dataset.ru || ''; b.value = v; b.dataset.ru = r || ''; renderHome();
   };
-  $('corp').onclick = () => $('corpA').classList.toggle('hide');
   $('car').addEventListener('scroll', () => { carTouch = Date.now(); carDots(); }, { passive: true });
   $('car').addEventListener('touchstart', () => { carTouch = Date.now() + 4000; }, { passive: true });
   $('nGo').onclick = newsGo; $('nShare').onclick = shareNews;
