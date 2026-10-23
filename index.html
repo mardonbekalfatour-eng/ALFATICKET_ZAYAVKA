@@ -240,6 +240,12 @@ select{border:1px solid var(--sep);background:#fff;border-radius:8px;height:34px
 .pkn small{display:block;font-size:12px;color:var(--hint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pki.free{color:var(--acc);font-weight:600;font-size:14px;padding:14px 10px}
 /* проверка */
+.rvm{flex:1;min-width:0;max-width:132px;display:flex;flex-direction:column;align-items:center;gap:0}
+.rvm svg{width:100%;height:auto;max-width:120px;display:block}
+.rvm{min-width:96px}
+.rvm small{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#BFD3F0;margin-top:2px;white-space:nowrap}
+.tkh{gap:6px}
+
 .tk{margin:14px 16px 0;border-radius:16px;background:#fff;box-shadow:var(--sh);overflow:hidden}
 .tkh{background:var(--acc);color:#fff;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .tkh>div{min-width:0}
@@ -509,7 +515,7 @@ select{border:1px solid var(--sep);background:#fff;border-radius:8px;height:34px
   <div class="tk up1">
     <div class="tkh">
       <div><div class="tkc" id="rvA"></div><div class="tkn" id="rvAn"></div></div>
-      <svg id="rvArc" width="64" height="24" viewBox="0 0 64 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" aria-hidden="true"><path d="M2 18c18-16 42-16 60 0" stroke-dasharray="2 4"/><path d="M54 10l8 8-10 2"/></svg>
+      <div class="rvm" id="rvMid"></div>
       <div class="r"><div class="tkc" id="rvB"></div><div class="tkn" id="rvBn"></div></div>
     </div>
     <div class="tear"><i></i><i></i><b></b></div>
@@ -1178,6 +1184,48 @@ function pickDone(p, rawText) {
   if (was === 'from' && !$('to').value) setTimeout(() => openPick('to'), 150);
 }
 
+
+// ---------- Анимация маршрута в билете ----------
+// Самолёт: в одну сторону — дуга туда; туда-обратно — две дуги навстречу; сложный — с остановками.
+// Поезд: в одну сторону — один путь; туда-обратно — два пути навстречу. Страховка — «пульс».
+const ROUTE_ANIM = (() => {
+  const W = '#FFFFFF', SOFT = 'rgba(255,255,255,.4)', BG = '#164C9A';
+  const plane = '<path fill="' + W + '" transform="scale(.78) rotate(90) translate(-12 -12)" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>';
+  const train = '<g transform="translate(-12 -9)"><path fill="' + W + '" d="M1 3h14.5A7.5 7.5 0 0 1 23 10.5V14H1z"/><rect x="3.5" y="5.5" width="4" height="3.5" rx=".8" fill="' + BG + '"/><rect x="9.5" y="5.5" width="4" height="3.5" rx=".8" fill="' + BG + '"/><path d="M16 5.5h1.5a4 4 0 0 1 3.4 3.5H16z" fill="' + BG + '"/><circle cx="6" cy="15.5" r="1.8" fill="' + W + '"/><circle cx="17" cy="15.5" r="1.8" fill="' + W + '"/></g>';
+  const fade = (dur, begin) => '<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.12;.85;1" dur="' + dur + '" begin="' + (begin || '0s') + '" repeatCount="indefinite"/>';
+  const move = (d, dur, begin, rot, kp, kt) => '<animateMotion path="' + d + '" dur="' + dur + '" begin="' + (begin || '0s') + '" repeatCount="indefinite" rotate="' + (rot || 'auto') + '" calcMode="spline" keyPoints="' + (kp || '0;1') + '" keyTimes="' + (kt || '0;1') + '" keySplines="' + (kp && kp.split(';').length > 2 ? '.45 0 .55 1;0 0 1 1;.45 0 .55 1' : '.45 0 .55 1') + '"/>';
+  const dash = (d, w) => '<path d="' + d + '" fill="none" stroke="' + SOFT + '" stroke-width="' + (w || 1.4) + '" stroke-dasharray="2 4" stroke-linecap="round"/>';
+  const dot = (x, y) => '<circle cx="' + x + '" cy="' + y + '" r="2.4" fill="' + W + '"/>';
+  const rail = y => '<path d="M6 ' + (y + 6) + 'H114" stroke="' + SOFT + '" stroke-width="1.2"/><path d="M6 ' + (y + 8.5) + 'H114" stroke="' + SOFT + '" stroke-width="3" stroke-dasharray="1.2 4"/>';
+  const svg = body => '<svg viewBox="0 0 120 52" width="120" height="52" aria-hidden="true" style="overflow:visible">' + body + '</svg>';
+  const A = 'M10 38C36 6 84 6 110 38', RA = 'M10 26C36 2 84 2 110 26', RB = 'M110 32C84 52 36 52 10 32';
+  return {
+    'pl-ow': () => svg(dash(A) + dot(10, 38) + dot(110, 38) + '<g opacity="0">' + plane + move(A, '3.2s') + fade('3.2s') + '</g>'),
+    'pl-rt': () => svg(dash(RA) + dash(RB) + dot(10, 29) + dot(110, 29) +
+      '<g opacity="0">' + plane + move(RA, '3.6s') + fade('3.6s') + '</g>' +
+      '<g opacity="0">' + plane + move(RB, '3.6s', '1.8s') + fade('3.6s', '1.8s') + '</g>'),
+    'pl-mc': () => { const C = 'M10 40C22 14 46 14 60 28C74 42 98 42 110 16';
+      return svg(dash(C) + dot(10, 40) + '<circle cx="60" cy="28" r="3.2" fill="none" stroke="' + W + '" stroke-width="1.6"/>' + dot(110, 16) +
+        '<g opacity="0">' + plane + move(C, '4.4s', '0s', 'auto', '0;.5;.5;1', '0;.42;.58;1') + fade('4.4s') + '</g>'); },
+    'tr-ow': () => svg(rail(26) + dot(6, 32) + dot(114, 32) + '<g opacity="0">' + train + move('M16 26H104', '3.4s', '0s', '0') + fade('3.4s') + '</g>'),
+    'tr-rt': () => svg(rail(8) + rail(30) +
+      '<g opacity="0">' + train + move('M16 8H104', '3.8s', '0s', '0') + fade('3.8s') + '</g>' +
+      '<g opacity="0"><g transform="scale(-1 1)">' + train + '</g>' + move('M104 30H16', '3.8s', '1.9s', '0') + fade('3.8s', '1.9s') + '</g>'),
+    'ins': () => svg('<path d="M6 30H40L46 18L53 42L59 26L63 30H114" fill="none" stroke="' + SOFT + '" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M6 30H40L46 18L53 42L59 26L63 30H114" fill="none" stroke="' + W + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="26 160" stroke-dashoffset="26"><animate attributeName="stroke-dashoffset" values="26;-160" dur="2.4s" repeatCount="indefinite"/></path>')
+  };
+})();
+let RA_KIND = '';
+function setRouteAnim(kind) {
+  const el = $('rvMid'); if (!el) return;
+  if (!ROUTE_ANIM[kind]) kind = 'pl-ow';
+  const t = T[L], lab = kind === 'ins' ? '' : t[kind.split('-')[1]] || '';
+  if (RA_KIND !== kind) { el.innerHTML = ROUTE_ANIM[kind]() + '<small></small>'; RA_KIND = kind; }
+  el.querySelector('small').textContent = lab;
+  const sv = el.querySelector('svg');
+  try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { sv.pauseAnimations(); sv.setCurrentTime(1.2); } else sv.setCurrentTime(0); } catch (e) {}
+}
+
 // ---------- Проверка ----------
 let RV = null;
 function toNext() {
@@ -1189,7 +1237,7 @@ function renderRv() {
   const t = T[L], d = RV, ins = M === 'ins';
   $('rvStep').textContent = t.step(3);
   const set = (c, n, val) => { const i = pinfo(val); c.className = 'tkc' + (i.code ? '' : ' city'); c.textContent = i.code || i.city; n.textContent = i.code ? i.city : ''; };
-  $('rvArc').style.display = ins ? 'none' : '';
+  setRouteAnim(ins ? 'ins' : (M === 'tr' ? 'tr-' : 'pl-') + trip());
   if (ins) { $('rvA').className = 'tkc city'; $('rvA').textContent = $('insC').value.trim(); $('rvAn').textContent = t.gIns + ' · APEX INSURANCE'; $('rvB').textContent = ''; $('rvBn').textContent = ''; }
   else if (trip() === 'mc') { set($('rvA'), $('rvAn'), legs[0].f); set($('rvB'), $('rvBn'), legs[legs.length - 1].t); $('rvBn').textContent += (legs.length > 2 ? ' · +' + (legs.length - 2) : ''); }
   else { set($('rvA'), $('rvAn'), $('from').value); set($('rvB'), $('rvBn'), $('to').value); }
